@@ -1,0 +1,59 @@
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.Random;
+
+class Producer implements Runnable {
+    private BlockingQueue<Integer> queue;
+    private Random random = new Random();
+
+    public Producer(BlockingQueue<Integer> queue) {
+        this.queue = queue;
+    }
+
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                int number = random.nextInt(100); // Generate a random number
+                queue.put(number); // Put it into the queue
+                System.out.println("Produced: " + number);
+                Thread.sleep(500); // Simulate time taken to produce
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+}
+
+class Consumer implements Runnable {
+    private BlockingQueue<Integer> queue;
+
+    public Consumer(BlockingQueue<Integer> queue) {
+        this.queue = queue;
+    }
+
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                Integer number = queue.take(); // Take an item from the queue
+                System.out.println("Consumed: " + number);
+                Thread.sleep(1000); // Simulate time taken to consume
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+}
+
+public class ProducerConsumerExample {
+    public static void main(String[] args) {
+        BlockingQueue<Integer> queue = new ArrayBlockingQueue<>(10); // Shared queue with capacity 10
+
+        Thread producerThread = new Thread(new Producer(queue));
+        Thread consumerThread = new Thread(new Consumer(queue));
+
+        producerThread.start();
+        consumerThread.start();
+    }
+}
